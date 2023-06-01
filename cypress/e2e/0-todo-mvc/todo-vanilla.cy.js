@@ -1,3 +1,5 @@
+// Version 1 - objective to write a spec file with a suite of working tests
+// These tests will need to be refactored and possibly split into 2 describe blocks
 describe("example to-do app", () => {
   beforeEach(() => {
     cy.visit("http://todomvc-app-for-testing.surge.sh/");
@@ -104,7 +106,7 @@ describe("example to-do app", () => {
     cy.get("ul.todo-list > li > div.view").should("have.length", 4);
   });
 
-  it.only("The 'Active' filter shows only active todos", () => {
+  it("The 'Active' filter shows only active todos", () => {
     const task1 = "Todo test one";
     const task2 = "Todo test two";
     const task3 = "Todo test three";
@@ -116,22 +118,113 @@ describe("example to-do app", () => {
       .type(task3 + "{enter}")
       .type(task4 + "{enter}");
     cy.get("footer > span.todo-count").should("contain", "4");
-    cy.get(".todo-list > li").eq(1).find("input.toggle").click();
-    cy.get(".todo-list > li").eq(2).find("input.toggle").click();
-    cy.get(".todo-list > li").eq(3).find("input.toggle").click();
-
     cy.get(".filters > li").eq(1).click();
+    // Switch to active filter - shows 4 items
     cy.get("a.selected").should("contain", "Active");
+    cy.get("label").should("have.length", 4);
+    // Check off 3 items would normally be eq(1), eq(2), eq(3) but the checked items are disappearing
+    // So selecting the second item in the remaining list each time
+    cy.get(".todo-list > li").eq(1).find("input.toggle").click();
+    cy.get(".todo-list > li").eq(1).find("input.toggle").click();
+    cy.get(".todo-list > li").eq(1).find("input.toggle").click();
+    // Todos reduce to 1 item and contains task 4
     cy.get("footer > span.todo-count").should("contain", "1");
     cy.get("label").should("have.length", 1).and("contain", task4);
   });
 
-  it("completed filter shows only completed todos");
+  it("completed filter shows only completed todos", () => {
+    const task1 = "Todo test one";
+    const task2 = "Todo test two";
+    const task3 = "Todo test three";
+    const task4 = "Todo test four";
 
-  it("Number of active tasks displays correctly");
+    cy.get(".header > input")
+      .type(task1 + "{enter}")
+      .type(task2 + "{enter}")
+      .type(task3 + "{enter}")
+      .type(task4 + "{enter}");
+    cy.get("footer > span.todo-count").should("contain", "4");
+    cy.get(".todo-list > li").eq(2).find("input.toggle").click();
+    cy.get(".todo-list > li").eq(3).find("input.toggle").click();
 
-  // create tasks that show on all 3 filters and delete them
-  it("Deleting tasks removes tasks from all lists");
+    cy.get(".filters > li").eq(2).click();
+    cy.get("a.selected").should("contain", "Completed");
+    // Note this is remaining tasks
+    cy.get("footer > span.todo-count").should("contain", "2");
+    cy.get("label").should("have.length", 2).eq(0).should("contain", task2);
+    cy.get("label").eq(1).should("contain", task1);
+
+    // Unchecking a todo should remove from the completed list and add it back to remaining todos
+    cy.get(".todo-list > li").eq(0).find("input.toggle").click();
+    cy.get("footer > span.todo-count").should("contain", "3");
+    cy.get("label").should("have.length", 1).should("contain", task1);
+  });
+
+  // This has been tested in previous tests but is not the main focus
+  it("Number of active items displays correctly", () => {
+    const task1 = "Todo test one";
+    const task2 = "Todo test two";
+    const task3 = "Todo test three";
+    const task4 = "Todo test four";
+
+    cy.get(".header > input")
+      .type(task1 + "{enter}")
+      .type(task2 + "{enter}")
+      .type(task3 + "{enter}")
+      .type(task4 + "{enter}");
+    cy.get("footer > span.todo-count").should("contain", "4 items left");
+    cy.get(".todo-list > li").eq(0).find("input.toggle").click();
+    cy.get("footer > span.todo-count").should("contain", "3 items left");
+    cy.get(".todo-list > li").eq(1).find("input.toggle").click();
+    cy.get("footer > span.todo-count").should("contain", "2 items left");
+    cy.get(".todo-list > li").eq(2).find("input.toggle").click();
+    cy.get("footer > span.todo-count").should("contain", "1 item left");
+    cy.get(".todo-list > li").eq(3).find("input.toggle").click();
+    cy.get("footer > span.todo-count").should("contain", "No items left");
+  });
+
+  it("Selecting 'Clear completed' button removes all completed todos", () => {
+    const task1 = "Todo test one";
+    const task2 = "Todo test two";
+
+    cy.get(".header > input")
+      .type(task1 + "{enter}")
+      .type(task2 + "{enter}");
+    cy.get(".todo-list > li").eq(0).find("input.toggle").click();
+    cy.get(".todo-list > li").eq(1).find("input.toggle").click();
+    cy.get("label").should("have.length", 2);
+    // cy.contains("button", "Clear completed").click();
+    // cy.get(".clear-completed").click();
+    // probably the best selector
+    cy.contains("Clear completed").click();
+    cy.get("label").should("not.exist");
+  });
+
+  //  *** NOT HAPPY WITH THIS TEST - MAY USE PLUGIN - cypress-real-events ***
+  // create tasks both deleted and todo completed delete them
+  it("Deleting todos removes todos from the list in all views", () => {
+    const task1 = "Todo test one";
+    const task2 = "Todo test two";
+
+    // create 2 todos, one completed
+    cy.get(".header > input")
+      .type(task1 + "{enter}")
+      .type(task2 + "{enter}");
+    cy.get(".todo-list > li").eq(0).find("input.toggle").click();
+    cy.get("label").should("have.length", 2);
+
+    // Assert button is visible on hover
+    // This only works for JavaScript events
+    // cy.get(".todo-list > li").eq(0).trigger("mouseenter");
+    // cy.get(".todo-list > li .destroy").should("be.visible");
+
+    // Delete the top todo
+    cy.get(".todo-list > li button").eq(0).invoke("show").click();
+    cy.get("label").should("have.length", 1).and("contain", task1);
+    // Delete remaining todo
+    cy.get(".todo-list > li button").eq(0).invoke("show").click();
+    cy.get("label").should("not.exist");
+  });
 
   // check through the advanced examples and use variations of ALL of them if possible
 });

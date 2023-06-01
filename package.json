@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cy:open": "cypress open",
+    "cy:run:todo-vanilla": "echo \"Running todo spec\" && cypress run --spec 'cypress/e2e/0-todo-mvc/todo-vanilla.cy.js'"
   },
   "repository": {
     "type": "git",
