@@ -10,5 +10,6 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome
-          spec: cypress/e2e/0-todo-mvc/todo-vanilla.cy.js
+          # browser: chrome
+          # spec: cypress/e2e/0-todo-mvc/todo-vanilla.cy.js
+          spec: cypress/e2e/cypress/e2e/todo.cy.js
