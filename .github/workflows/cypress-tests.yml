@@ -1,12 +1,5 @@
 name: Cypress E2E tests
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - 'develop'
-  #pull_request:
-    #branches:
-     # - 'main'
+on: push
 jobs:
   cypress-run:
     name: Cypress run
@@ -14,9 +7,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome
-          spec: cypress/e2e/0-todo-mvc/todo-vanilla.cy.js
+          # browser: chrome
+          # spec: cypress/e2e/0-todo-mvc/todo-vanilla.cy.js
+          spec: cypress/e2e/1-getting-started/todo.cy.js
