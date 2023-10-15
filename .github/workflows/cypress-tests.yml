@@ -1,22 +1,22 @@
-# Testing GitHub Actions with Act
-name: Cypress E2E Tests
+name: Cypress E2E tests
 on:
   workflow_dispatch:
   push:
     branches:
       - 'develop'
-  pull_request:
-    branches:
-      - 'main'
+  #pull_request:
+    #branches:
+     # - 'main'
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
+    name: Cypress run
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
+        uses: actions/checkout@v4
+
       - name: Cypress run
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
+          browser: chrome
           spec: cypress/e2e/0-todo-mvc/todo-vanilla.cy.js
