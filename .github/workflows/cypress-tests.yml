@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - 'develop'
-  pull_request:
-    branches:
-      - 'main'
+  #pull_request:
+    #branches:
+     # - 'main'
 jobs:
   cypress-run:
     name: Cypress run
@@ -18,4 +18,5 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
+          browser: chrome
           spec: cypress/e2e/0-todo-mvc/todo-vanilla.cy.js
